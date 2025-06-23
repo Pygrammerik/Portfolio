@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
         adminToken = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
         localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
         sessionStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
+    } else if (!sessionStorage.getItem(ADMIN_TOKEN_KEY)) {
+        // Если токен есть в localStorage, но нет в sessionStorage — копируем
+        sessionStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
     }
 
     // Проверяем, совпадает ли токен в sessionStorage и localStorage
