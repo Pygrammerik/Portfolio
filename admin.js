@@ -6,22 +6,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const manageProjectsSection = document.getElementById('manage-projects-section');
     const projectListDiv = document.getElementById('project-list');
     const adminDenied = document.getElementById('admin-denied');
+    const resetAdminBtn = document.getElementById('reset-admin');
 
-    // Механика первого входа
+    // Новый механизм: токен в localStorage (глобально) и sessionStorage (только для этого браузера)
     const ADMIN_TOKEN_KEY = 'admin_token';
-    let adminToken = localStorage.getItem(ADMIN_TOKEN_KEY);
-    if (!adminToken) {
-        // Первый вход — создаём токен
-        adminToken = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
-        localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
-        sessionStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
-    } else if (!sessionStorage.getItem(ADMIN_TOKEN_KEY)) {
-        // Если токен есть в localStorage, но нет в sessionStorage — копируем
-        sessionStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
+    let adminTokenLS = localStorage.getItem(ADMIN_TOKEN_KEY);
+    let adminTokenSS = sessionStorage.getItem(ADMIN_TOKEN_KEY);
+
+    if (!adminTokenLS && !adminTokenSS) {
+        // Первый вход — создаём токен и сохраняем в оба хранилища
+        const newToken = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+        localStorage.setItem(ADMIN_TOKEN_KEY, newToken);
+        sessionStorage.setItem(ADMIN_TOKEN_KEY, newToken);
+        adminTokenLS = newToken;
+        adminTokenSS = newToken;
     }
 
-    // Проверяем, совпадает ли токен в sessionStorage и localStorage
-    if (sessionStorage.getItem(ADMIN_TOKEN_KEY) === localStorage.getItem(ADMIN_TOKEN_KEY)) {
+    // Если токен есть в localStorage, но нет в sessionStorage — доступ запрещён
+    if (adminTokenLS && adminTokenSS && adminTokenLS === adminTokenSS) {
         // Доступ разрешён
         adminPanel.style.display = 'block';
         manageProjectsSection.style.display = 'block';
@@ -32,6 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
         adminPanel.style.display = 'none';
         manageProjectsSection.style.display = 'none';
         adminDenied.style.display = 'block';
+    }
+
+    if (resetAdminBtn) {
+        resetAdminBtn.onclick = () => {
+            sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+            localStorage.removeItem(ADMIN_TOKEN_KEY);
+            location.reload();
+        };
     }
 
     function renderProjects() {
