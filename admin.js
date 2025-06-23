@@ -10,27 +10,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Новый механизм: токен в localStorage (глобально) и sessionStorage (только для этого браузера)
     const ADMIN_TOKEN_KEY = 'admin_token';
-    let adminTokenLS = localStorage.getItem(ADMIN_TOKEN_KEY);
-    let adminTokenSS = sessionStorage.getItem(ADMIN_TOKEN_KEY);
 
-    if (!adminTokenLS && !adminTokenSS) {
-        // Первый вход — создаём токен и сохраняем в оба хранилища
+    // 1. Если нет токена ни там, ни там — создаём
+    if (!localStorage.getItem(ADMIN_TOKEN_KEY) && !sessionStorage.getItem(ADMIN_TOKEN_KEY)) {
         const newToken = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
         localStorage.setItem(ADMIN_TOKEN_KEY, newToken);
         sessionStorage.setItem(ADMIN_TOKEN_KEY, newToken);
-        adminTokenLS = newToken;
-        adminTokenSS = newToken;
     }
 
-    // Если токен есть в localStorage, но нет в sessionStorage — доступ запрещён
+    // 2. Всегда читаем актуальные значения
+    let adminTokenLS = localStorage.getItem(ADMIN_TOKEN_KEY);
+    let adminTokenSS = sessionStorage.getItem(ADMIN_TOKEN_KEY);
+
+    // Отладка
+    console.log('adminTokenLS:', adminTokenLS);
+    console.log('adminTokenSS:', adminTokenSS);
+
+    // 3. Проверка доступа
     if (adminTokenLS && adminTokenSS && adminTokenLS === adminTokenSS) {
-        // Доступ разрешён
         adminPanel.style.display = 'block';
         manageProjectsSection.style.display = 'block';
         adminDenied.style.display = 'none';
         renderProjects();
     } else {
-        // Доступ запрещён
         adminPanel.style.display = 'none';
         manageProjectsSection.style.display = 'none';
         adminDenied.style.display = 'block';
