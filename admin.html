@@ -101,38 +101,27 @@
     </header>
 
     <main>
-        <section id="login-section">
-            <h2>Admin Login</h2>
-            <form id="login-form">
-                <label for="password">Password:</label>
-                <input type="password" id="password" required>
-                <button type="submit">Login</button>
-            </form>
-        </section>
-
         <section id="admin-panel" style="display:none;">
             <h2>Add New Project</h2>
             <form id="add-project-form">
                 <label for="project-title">Project Title:</label>
                 <input type="text" id="project-title" required>
-                
                 <label for="project-description">Description:</label>
                 <textarea id="project-description" rows="4" required></textarea>
-                
                 <label for="project-link">Project Link:</label>
                 <input type="url" id="project-link" required>
-                
                 <button type="submit">Add Project</button>
             </form>
             <br>
             <a href="index.html">Back to Portfolio</a>
         </section>
-
         <section id="manage-projects-section" style="display:none;">
             <h2>Manage Projects</h2>
-            <div id="project-list">
-                <!-- Project list will be dynamically loaded here -->
-            </div>
+            <div id="project-list"></div>
+        </section>
+        <section id="admin-denied" style="display:none; text-align:center; margin-top:4rem;">
+            <h2>Access Denied</h2>
+            <p>Admin access is only available from the device that was first to open this page.</p>
         </section>
     </main>
 
