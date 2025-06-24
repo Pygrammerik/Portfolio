@@ -6,11 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectListDiv = document.getElementById('project-list');
     const resetAdminBtn = document.getElementById('reset-admin');
 
-    // Только проверка по GitHub username - только Pygrammerik может войти
-    const ALLOWED_USERNAME = 'Pygrammerik';
+    // Доступ к админ панели - измените на ваш GitHub username если нужно ограничить доступ
+    const ALLOWED_USERNAME = null; // Установите ваш GitHub username здесь для ограничения доступа
     const currentUsername = 'Pygrammerik'; // Здесь должен быть ваш реальный username
     
-    if (currentUsername === ALLOWED_USERNAME) {
+    // Если ALLOWED_USERNAME не задан, доступ разрешен всем
+    // Если задан, то только указанному пользователю
+    const hasAccess = !ALLOWED_USERNAME || currentUsername === ALLOWED_USERNAME;
+    
+    if (hasAccess) {
         // Доступ разрешён
         adminPanel.style.display = 'block';
         manageProjectsSection.style.display = 'block';
