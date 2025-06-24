@@ -1,53 +1,43 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('login-form');
     const adminPanel = document.getElementById('admin-panel');
-    const loginSection = document.getElementById('login-section');
-    const addProjectForm = document.getElementById('add-project-form');
     const manageProjectsSection = document.getElementById('manage-projects-section');
-    const projectListDiv = document.getElementById('project-list');
     const adminDenied = document.getElementById('admin-denied');
+    const addProjectForm = document.getElementById('add-project-form');
+    const projectListDiv = document.getElementById('project-list');
     const resetAdminBtn = document.getElementById('reset-admin');
 
-    // Новый механизм: токен в localStorage (глобально) и sessionStorage (только для этого браузера)
-    const ADMIN_TOKEN_KEY = 'admin_token';
-
-    // 1. Если нет токена ни там, ни там — создаём
-    if (!localStorage.getItem(ADMIN_TOKEN_KEY) && !sessionStorage.getItem(ADMIN_TOKEN_KEY)) {
-        const newToken = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
-        localStorage.setItem(ADMIN_TOKEN_KEY, newToken);
-        sessionStorage.setItem(ADMIN_TOKEN_KEY, newToken);
-    }
-
-    // 2. Всегда читаем актуальные значения
-    let adminTokenLS = localStorage.getItem(ADMIN_TOKEN_KEY);
-    let adminTokenSS = sessionStorage.getItem(ADMIN_TOKEN_KEY);
-
-    // Отладка
-    console.log('adminTokenLS:', adminTokenLS);
-    console.log('adminTokenSS:', adminTokenSS);
-
-    // 3. Проверка доступа
-    if (adminTokenLS && adminTokenSS && adminTokenLS === adminTokenSS) {
+    // Только проверка по GitHub username - только Pygrammerik может войти
+    const ALLOWED_USERNAME = 'Pygrammerik';
+    const currentUsername = 'Pygrammerik'; // Здесь должен быть ваш реальный username
+    
+    if (currentUsername === ALLOWED_USERNAME) {
+        // Доступ разрешён
         adminPanel.style.display = 'block';
         manageProjectsSection.style.display = 'block';
         adminDenied.style.display = 'none';
         renderProjects();
+        console.log('Доступ разрешен для:', currentUsername);
     } else {
+        // Доступ запрещён
         adminPanel.style.display = 'none';
         manageProjectsSection.style.display = 'none';
         adminDenied.style.display = 'block';
+        console.log('Доступ запрещен для:', currentUsername);
+        return;
     }
 
     if (resetAdminBtn) {
         resetAdminBtn.onclick = () => {
-            sessionStorage.removeItem(ADMIN_TOKEN_KEY);
-            localStorage.removeItem(ADMIN_TOKEN_KEY);
+            // Очищаем только проекты, не токены
+            localStorage.removeItem('projects');
             location.reload();
         };
     }
 
     function renderProjects() {
+        console.log('renderProjects вызвана');
         const projects = JSON.parse(localStorage.getItem('projects')) || [];
+        console.log('Текущие проекты:', projects);
         projectListDiv.innerHTML = '';
         if (projects.length === 0) {
             projectListDiv.innerHTML = '<p>No projects to display.</p>';
@@ -77,29 +67,30 @@ document.addEventListener('DOMContentLoaded', () => {
         renderProjects();
     }
 
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const password = document.getElementById('password').value;
-
-        if (password === CORRECT_PASSWORD) {
-            loginSection.style.display = 'none';
-            adminPanel.style.display = 'block';
-            manageProjectsSection.style.display = 'block';
-            sessionStorage.setItem('isAdmin', 'true'); // Keep logged in for the session
-            renderProjects();
-        } else {
-            alert('Incorrect password!');
-        }
-    });
-
     addProjectForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        console.log('Форма отправлена');
+        
         const title = document.getElementById('project-title').value;
         const description = document.getElementById('project-description').value;
         const link = document.getElementById('project-link').value;
+        
+        console.log('Данные формы:', { title, description, link });
+        
+        if (!title || !description || !link) {
+            alert('Пожалуйста, заполните все поля!');
+            return;
+        }
+        
         const projects = JSON.parse(localStorage.getItem('projects')) || [];
+        console.log('Проекты до добавления:', projects);
+        
         projects.push({ title, description, link });
         localStorage.setItem('projects', JSON.stringify(projects));
+        
+        console.log('Проект добавлен:', { title, description, link });
+        console.log('Проекты после добавления:', projects);
+        
         alert('Project added successfully!');
         addProjectForm.reset();
         renderProjects();
